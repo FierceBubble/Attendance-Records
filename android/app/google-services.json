@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "493909958756",
+    "project_id": "attendance-record---flutter",
+    "storage_bucket": "attendance-record---flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:493909958756:android:c7378e7894557746cd3f71",
+        "android_client_info": {
+          "package_name": "com.example.attendancerecords"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "493909958756-vfqtmot7ubjuhov9jvtpf9pktlih7fi0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgjR71Wdy7Xx0aeOjyxFT7Grx8lkhCd-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "493909958756-vfqtmot7ubjuhov9jvtpf9pktlih7fi0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
