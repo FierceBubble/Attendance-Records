@@ -1,3 +1,4 @@
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -19,7 +20,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  FirebaseDatabase database = FirebaseDatabase.instance;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,7 +51,6 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ),
               ),
-              const ListofRecords(),
             ],
           ),
         ),
@@ -91,85 +90,32 @@ class RecordForm extends StatelessWidget {
   }
 }
 
-class ListofRecords extends StatelessWidget {
-  const ListofRecords({super.key});
+class NextPage extends StatefulWidget {
+  const NextPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
-              Expanded(flex: 1, child: Text('Name')),
-              Expanded(flex: 1, child: Text('(+60) 123456789')),
-              Expanded(flex: 1, child: Text('20 December 2022 10:00 am')),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Expanded(
-                flex: 1,
-                child: Text('Name'),
-              ),
-              const Expanded(
-                flex: 1,
-                child: Text('(+60) 123456789'),
-              ),
-              const Expanded(
-                flex: 1,
-                child: Text('20 December 2022 10:00 am'),
-              ),
-              Expanded(
-                flex: 1,
-                child: IconButton(
-                  icon: const Icon(Icons.info),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return const AlertDialog(
-                          content: Text('Alert!'),
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(2.0))),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
-              Expanded(flex: 1, child: Text('Name')),
-              Expanded(flex: 1, child: Text('(+60) 123456789')),
-              Expanded(flex: 1, child: Text('20 December 2022 10:00 am')),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  State<NextPage> createState() => _NextPageState();
 }
 
-class NextPage extends StatelessWidget {
-  const NextPage({super.key});
+class _NextPageState extends State<NextPage> {
+  Query dbRef =
+      FirebaseDatabase.instance.ref().child('list').orderByChild('checkin');
+
+  Widget listItem({required Map users}) {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
+      height: 100,
+      color: Colors.grey,
+      child: Row(
+        children: [
+          Text(users['user']),
+          Text(users['phone']),
+          Text(users['checkin']),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +123,18 @@ class NextPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.yellow,
         title: const Text('Next Page'),
+      ),
+      body: Container(
+        color: Colors.purpleAccent,
+        height: double.infinity,
+        child: FirebaseAnimatedList(
+          query: dbRef,
+          itemBuilder: (BuildContext context, DataSnapshot snapshot,
+              Animation<double> animation, int index) {
+            Map users = snapshot.value as Map;
+            return listItem(users: users);
+          },
+        ),
       ),
     );
   }
