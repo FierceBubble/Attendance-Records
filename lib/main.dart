@@ -17,7 +17,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.blueAccent,
           title: const Text('Attendance Records'),
         ),
         body: Center(
@@ -25,20 +25,10 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Expanded(
-                flex: 0,
-                child: Text('Check-In Now !!!'),
-              ),
-              const Expanded(
-                flex: 0,
-                child: Text('This is a user input ---Name---'),
-              ),
-              const Expanded(
-                flex: 0,
-                child: Text('This is a user input ---Phone Number---'),
-              ),
-              Expanded(
-                flex: 0,
+              const Text('Check-In Now !!!'),
+              const RecordForm(),
+              Padding(
+                padding: const EdgeInsets.all(8),
                 child: Builder(
                   builder: (context) => ElevatedButton(
                     onPressed: () {
@@ -53,10 +43,119 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ),
               ),
+              const ListofRecords(),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class RecordForm extends StatelessWidget {
+  const RecordForm({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: TextFormField(
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Enter your name',
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: TextFormField(
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Enter your phone number',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ListofRecords extends StatelessWidget {
+  const ListofRecords({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Expanded(flex: 1, child: Text('Name')),
+              Expanded(flex: 1, child: Text('(+60) 123456789')),
+              Expanded(flex: 1, child: Text('20 December 2022 10:00 am')),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Expanded(
+                flex: 1,
+                child: Text('Name'),
+              ),
+              const Expanded(
+                flex: 1,
+                child: Text('(+60) 123456789'),
+              ),
+              const Expanded(
+                flex: 1,
+                child: Text('20 December 2022 10:00 am'),
+              ),
+              Expanded(
+                flex: 1,
+                child: IconButton(
+                  icon: const Icon(Icons.info),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                          content: Text('Alert!'),
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(2.0))),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Expanded(flex: 1, child: Text('Name')),
+              Expanded(flex: 1, child: Text('(+60) 123456789')),
+              Expanded(flex: 1, child: Text('20 December 2022 10:00 am')),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
