@@ -2,6 +2,7 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/services.dart';
 import 'firebase_options.dart';
 import 'package:intl/intl.dart';
 
@@ -23,14 +24,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  TextEditingController user_name = TextEditingController();
-  TextEditingController user_phone = TextEditingController();
+  TextEditingController userName = TextEditingController();
+  TextEditingController userPhone = TextEditingController();
 
   @override
   void dispose() {
     // TODO: implement dispose
-    user_name.dispose();
-    user_phone.dispose();
+    userName.dispose();
+    userPhone.dispose();
     super.dispose();
   }
 
@@ -76,7 +77,7 @@ class _MyAppState extends State<MyApp> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: TextFormField(
-                  controller: user_name,
+                  controller: userName,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Enter your name',
@@ -86,7 +87,12 @@ class _MyAppState extends State<MyApp> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: TextFormField(
-                  controller: user_phone,
+                  controller: userPhone,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(13),
+                  ],
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Enter your phone number',
@@ -97,7 +103,23 @@ class _MyAppState extends State<MyApp> {
                 padding: const EdgeInsets.all(8),
                 child: Builder(
                   builder: (context) => ElevatedButton(
-                    onPressed: () {insertUserCheckIn(user_name.text, user_phone.text);},
+                    onPressed: () {
+                      if(userName.text!=''&&userPhone.text!=''){
+                        insertUserCheckIn(userName.text, userPhone.text);
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return const AlertDialog(
+                              content: Text('Check-In Recorded!'),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(2.0))),
+                            );
+                          },
+                        );
+                      }
+                      userName.clear();
+                      userPhone.clear();
+                      },
                     child: const Text('Check In!'),
                   ),
                 ),
@@ -128,16 +150,16 @@ class ListofRecords extends StatelessWidget {
         time = format.format(date);
       } else if (diff.inDays > 0 && diff.inDays < 7) {
         if (diff.inDays == 1) {
-          time = diff.inDays.toString() + ' DAY AGO';
+          time = '${diff.inDays} DAY AGO';
         } else {
-          time = diff.inDays.toString() + ' DAYS AGO';
+          time = '${diff.inDays} DAYS AGO';
         }
       } else {
         if (diff.inDays == 7) {
-          time = (diff.inDays / 7).floor().toString() + ' WEEK AGO';
+          time = '${(diff.inDays / 7).floor()} WEEK AGO';
         } else {
 
-          time = (diff.inDays / 7).floor().toString() + ' WEEKS AGO';
+          time = '${(diff.inDays / 7).floor()} WEEKS AGO';
         }
       }
 
@@ -146,7 +168,6 @@ class ListofRecords extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(1),
       padding: const EdgeInsets.all(8),
-      color: Colors.grey,
       child: Row(
         children: [
           Expanded(
@@ -176,8 +197,7 @@ class ListofRecords extends StatelessWidget {
   Widget build(BuildContext context) {
     Query dbRef =
         FirebaseDatabase.instance.ref().child('list').orderByChild('reverse');
-    return Container(
-      color: Colors.purpleAccent,
+    return SizedBox(
       height: double.maxFinite,
       child: FirebaseAnimatedList(
         query: dbRef,
