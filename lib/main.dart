@@ -33,8 +33,14 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text('Check-In Now !!!'),
-              const RecordForm(),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('Check-In Now !!!'),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: RecordForm(),
+              ),
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Builder(
@@ -47,10 +53,11 @@ class _MyAppState extends State<MyApp> {
                         ),
                       );
                     },
-                    child: const Text('Next Page'),
+                    child: const Text('Check In!'),
                   ),
                 ),
               ),
+              const Expanded(child: ListofRecords()),
             ],
           ),
         ),
@@ -90,6 +97,59 @@ class RecordForm extends StatelessWidget {
   }
 }
 
+class ListofRecords extends StatelessWidget {
+  const ListofRecords({super.key});
+
+  Widget listItem({required Map users}) {
+    var date = DateTime.fromMillisecondsSinceEpoch(users['checkin']);
+    return Container(
+      margin: const EdgeInsets.all(1),
+      padding: const EdgeInsets.all(8),
+      color: Colors.grey,
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(users['user']),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(users['phone'].toString()),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(date.toString()),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Query dbRef =
+        FirebaseDatabase.instance.ref().child('list').orderByChild('reverse');
+    return Container(
+      color: Colors.purpleAccent,
+      height: double.maxFinite,
+      child: FirebaseAnimatedList(
+        query: dbRef,
+        itemBuilder: (BuildContext context, DataSnapshot snapshot,
+            Animation<double> animation, int index) {
+          Map users = snapshot.value as Map;
+          return listItem(users: users);
+        },
+      ),
+    );
+  }
+}
+
 class NextPage extends StatefulWidget {
   const NextPage({super.key});
 
@@ -98,43 +158,12 @@ class NextPage extends StatefulWidget {
 }
 
 class _NextPageState extends State<NextPage> {
-  Query dbRef =
-      FirebaseDatabase.instance.ref().child('list').orderByChild('checkin');
-
-  Widget listItem({required Map users}) {
-    return Container(
-      margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.all(8),
-      height: 100,
-      color: Colors.grey,
-      child: Row(
-        children: [
-          Text(users['user']),
-          Text(users['phone']),
-          Text(users['checkin']),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.yellow,
         title: const Text('Next Page'),
-      ),
-      body: Container(
-        color: Colors.purpleAccent,
-        height: double.infinity,
-        child: FirebaseAnimatedList(
-          query: dbRef,
-          itemBuilder: (BuildContext context, DataSnapshot snapshot,
-              Animation<double> animation, int index) {
-            Map users = snapshot.value as Map;
-            return listItem(users: users);
-          },
-        ),
       ),
     );
   }

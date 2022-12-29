@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "493909958756",
+    "firebase_url": "https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "attendance-record---flutter",
     "storage_bucket": "attendance-record---flutter.appspot.com"
   },
@@ -29,6 +30,13 @@
             {
               "client_id": "493909958756-vfqtmot7ubjuhov9jvtpf9pktlih7fi0.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "493909958756-stn6k1rs15g9rtm6ojvgi4dlm4jrgjq3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.attendancerecords"
+              }
             }
           ]
         }
