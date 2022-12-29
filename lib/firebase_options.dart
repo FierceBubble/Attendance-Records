@@ -49,7 +49,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '493909958756',
     projectId: 'attendance-record---flutter',
     authDomain: 'attendance-record---flutter.firebaseapp.com',
-    databaseURL: 'https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'attendance-record---flutter.appspot.com',
     measurementId: 'G-KRH6VGV7D6',
   );
@@ -59,7 +60,8 @@ class DefaultFirebaseOptions {
     appId: '1:493909958756:android:c7378e7894557746cd3f71',
     messagingSenderId: '493909958756',
     projectId: 'attendance-record---flutter',
-    databaseURL: 'https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'attendance-record---flutter.appspot.com',
   );
 
@@ -68,9 +70,11 @@ class DefaultFirebaseOptions {
     appId: '1:493909958756:ios:71cafd7d7b49d7d8cd3f71',
     messagingSenderId: '493909958756',
     projectId: 'attendance-record---flutter',
-    databaseURL: 'https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'attendance-record---flutter.appspot.com',
-    iosClientId: '493909958756-stn6k1rs15g9rtm6ojvgi4dlm4jrgjq3.apps.googleusercontent.com',
+    iosClientId:
+        '493909958756-stn6k1rs15g9rtm6ojvgi4dlm4jrgjq3.apps.googleusercontent.com',
     iosBundleId: 'com.example.attendancerecords',
   );
 
@@ -79,9 +83,11 @@ class DefaultFirebaseOptions {
     appId: '1:493909958756:ios:71cafd7d7b49d7d8cd3f71',
     messagingSenderId: '493909958756',
     projectId: 'attendance-record---flutter',
-    databaseURL: 'https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'attendance-record---flutter.appspot.com',
-    iosClientId: '493909958756-stn6k1rs15g9rtm6ojvgi4dlm4jrgjq3.apps.googleusercontent.com',
+    iosClientId:
+        '493909958756-stn6k1rs15g9rtm6ojvgi4dlm4jrgjq3.apps.googleusercontent.com',
     iosBundleId: 'com.example.attendancerecords',
   );
 }

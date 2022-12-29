@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
+    name: 'attendance-record---flutter',
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
@@ -20,6 +21,40 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+  TextEditingController user_name = TextEditingController();
+  TextEditingController user_phone = TextEditingController();
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    user_name.dispose();
+    user_phone.dispose();
+    super.dispose();
+  }
+
+  Future<void> insertUserCheckIn(String name, String phone) async {
+    int dateNow = DateTime.now().millisecondsSinceEpoch;
+    int dateRev = dateNow*-1;
+    int? idx=0;
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('totalList').get();
+    if (snapshot.exists) {
+      idx = snapshot.value as int?;
+    }
+
+    await ref.update({
+      'totalList': idx!+1,
+    });
+
+    await ref.child('list/$idx').set({
+      'user': name,
+      'phone': phone,
+      'checkin': dateNow,
+      'reverse': dateRev
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -37,22 +72,31 @@ class _MyAppState extends State<MyApp> {
                 padding: EdgeInsets.all(8.0),
                 child: Text('Check-In Now !!!'),
               ),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: RecordForm(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: TextFormField(
+                  controller: user_name,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Enter your name',
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: TextFormField(
+                  controller: user_phone,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Enter your phone number',
+                  ),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Builder(
                   builder: (context) => ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const NextPage(),
-                        ),
-                      );
-                    },
+                    onPressed: () {insertUserCheckIn(user_name.text, user_phone.text);},
                     child: const Text('Check In!'),
                   ),
                 ),
@@ -66,36 +110,6 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class RecordForm extends StatelessWidget {
-  const RecordForm({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: TextFormField(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Enter your name',
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: TextFormField(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Enter your phone number',
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class ListofRecords extends StatelessWidget {
   const ListofRecords({super.key});
