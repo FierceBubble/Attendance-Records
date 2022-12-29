@@ -146,8 +146,25 @@ class ListofRecords extends StatelessWidget {
       var diff = now.difference(date);
       var time = '';
 
-      if (diff.inSeconds <= 0 || diff.inSeconds > 0 && diff.inMinutes == 0 || diff.inMinutes > 0 && diff.inHours == 0 || diff.inHours > 0 && diff.inDays == 0) {
+      if (diff.inSeconds <= 60 && diff.inMinutes == 0 && diff.inHours == 0 && diff.inDays == 0) {
         time = format.format(date);
+        if (diff.inSeconds == 1 || diff.inSeconds == 0) {
+          time = '${diff.inSeconds} SECOND AGO';
+        } else {
+          time = '${diff.inSeconds} SECONDS AGO';
+        }
+      } else if(diff.inMinutes > 0 && diff.inMinutes <= 60 && diff.inHours == 0 && diff.inDays == 0) {
+        if (diff.inMinutes == 1) {
+          time = '${diff.inMinutes} MINUTE AGO';
+        } else {
+          time = '${diff.inMinutes} MINUTES AGO';
+        }
+      } else if (diff.inHours > 0 && diff.inHours < 24 && diff.inDays == 0){
+        if (diff.inHours == 1) {
+          time = '${diff.inHours} HOUR AGO';
+        } else {
+          time = '${diff.inHours} HOURS AGO';
+        }
       } else if (diff.inDays > 0 && diff.inDays < 7) {
         if (diff.inDays == 1) {
           time = '${diff.inDays} DAY AGO';
