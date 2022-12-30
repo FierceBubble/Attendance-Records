@@ -4,14 +4,22 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/services.dart';
 import 'firebase_options.dart';
+
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    name: 'attendance-record---flutter',
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  if(kIsWeb){
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }else{
+    await Firebase.initializeApp(
+      name: 'attendance-record---flutter',
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   runApp(const MyApp());
 }
 
@@ -23,13 +31,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   TextEditingController userName = TextEditingController();
   TextEditingController userPhone = TextEditingController();
 
   @override
   void dispose() {
-    // TODO: implement dispose
     userName.dispose();
     userPhone.dispose();
     super.dispose();
@@ -37,8 +43,8 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> insertUserCheckIn(String name, String phone) async {
     int dateNow = DateTime.now().millisecondsSinceEpoch;
-    int dateRev = dateNow*-1;
-    int? idx=0;
+    int dateRev = dateNow * -1;
+    int? idx = 0;
     final ref = FirebaseDatabase.instance.ref();
     final snapshot = await ref.child('totalList').get();
     if (snapshot.exists) {
@@ -46,15 +52,11 @@ class _MyAppState extends State<MyApp> {
     }
 
     await ref.update({
-      'totalList': idx!+1,
+      'totalList': idx! + 1,
     });
 
-    await ref.child('list/$idx').set({
-      'user': name,
-      'phone': phone,
-      'checkin': dateNow,
-      'reverse': dateRev
-    });
+    await ref.child('list/$idx').set(
+        {'user': name, 'phone': phone, 'checkin': dateNow, 'reverse': dateRev});
   }
 
   @override
@@ -75,7 +77,8 @@ class _MyAppState extends State<MyApp> {
                 child: Text('Check-In Now !!!'),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: TextFormField(
                   controller: userName,
                   decoration: const InputDecoration(
@@ -85,7 +88,8 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: TextFormField(
                   controller: userPhone,
                   keyboardType: TextInputType.number,
@@ -104,7 +108,7 @@ class _MyAppState extends State<MyApp> {
                 child: Builder(
                   builder: (context) => ElevatedButton(
                     onPressed: () {
-                      if(userName.text!=''&&userPhone.text!=''){
+                      if (userName.text != '' && userPhone.text != '') {
                         insertUserCheckIn(userName.text, userPhone.text);
                         showDialog(
                           context: context,
@@ -112,14 +116,15 @@ class _MyAppState extends State<MyApp> {
                             return const AlertDialog(
                               content: Text('Check-In Recorded!'),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(2.0))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(2.0))),
                             );
                           },
                         );
                       }
                       userName.clear();
                       userPhone.clear();
-                      },
+                    },
                     child: const Text('Check In!'),
                   ),
                 ),
@@ -133,12 +138,10 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-
 class ListofRecords extends StatelessWidget {
   const ListofRecords({super.key});
 
   Widget listItem({required Map users}) {
-
     String readTimestamp(int timestamp) {
       var now = DateTime.now();
       var format = DateFormat('HH:mm a');
@@ -146,20 +149,26 @@ class ListofRecords extends StatelessWidget {
       var diff = now.difference(date);
       var time = '';
 
-      if (diff.inSeconds <= 60 && diff.inMinutes == 0 && diff.inHours == 0 && diff.inDays == 0) {
+      if (diff.inSeconds <= 60 &&
+          diff.inMinutes == 0 &&
+          diff.inHours == 0 &&
+          diff.inDays == 0) {
         time = format.format(date);
         if (diff.inSeconds == 1 || diff.inSeconds == 0) {
           time = '${diff.inSeconds} SECOND AGO';
         } else {
           time = '${diff.inSeconds} SECONDS AGO';
         }
-      } else if(diff.inMinutes > 0 && diff.inMinutes <= 60 && diff.inHours == 0 && diff.inDays == 0) {
+      } else if (diff.inMinutes > 0 &&
+          diff.inMinutes <= 60 &&
+          diff.inHours == 0 &&
+          diff.inDays == 0) {
         if (diff.inMinutes == 1) {
           time = '${diff.inMinutes} MINUTE AGO';
         } else {
           time = '${diff.inMinutes} MINUTES AGO';
         }
-      } else if (diff.inHours > 0 && diff.inHours < 24 && diff.inDays == 0){
+      } else if (diff.inHours > 0 && diff.inHours < 24 && diff.inDays == 0) {
         if (diff.inHours == 1) {
           time = '${diff.inHours} HOUR AGO';
         } else {
@@ -175,13 +184,13 @@ class ListofRecords extends StatelessWidget {
         if (diff.inDays == 7) {
           time = '${(diff.inDays / 7).floor()} WEEK AGO';
         } else {
-
           time = '${(diff.inDays / 7).floor()} WEEKS AGO';
         }
       }
 
       return time;
     }
+
     return Container(
       margin: const EdgeInsets.all(1),
       padding: const EdgeInsets.all(8),
