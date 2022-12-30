@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
 
+final ref = FirebaseDatabase.instance.ref();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if(kIsWeb){
@@ -45,7 +46,6 @@ class _MyAppState extends State<MyApp> {
     int dateNow = DateTime.now().millisecondsSinceEpoch;
     int dateRev = dateNow * -1;
     int? idx = 0;
-    final ref = FirebaseDatabase.instance.ref();
     final snapshot = await ref.child('totalList').get();
     if (snapshot.exists) {
       idx = snapshot.value as int?;
@@ -73,8 +73,15 @@ class _MyAppState extends State<MyApp> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('Check-In Now !!!'),
+                padding: EdgeInsets.all(10.0),
+                child: Text('Check-In Now !!!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.lightBlue ,
+                  ),
+                ),
               ),
               Padding(
                 padding:
@@ -103,34 +110,45 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Builder(
-                  builder: (context) => ElevatedButton(
-                    onPressed: () {
-                      if (userName.text != '' && userPhone.text != '') {
-                        insertUserCheckIn(userName.text, userPhone.text);
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return const AlertDialog(
-                              content: Text('Check-In Recorded!'),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(2.0))
-                              ),
-                            );
-                          },
-                        );
-                      }
-                      userName.clear();
-                      userPhone.clear();
-                    },
-                    child: const Text('Check In!'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget> [
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Builder(
+                          builder: (context) => ElevatedButton(
+                            onPressed: () {
+                              if (userName.text != '' && userPhone.text != '') {
+                                insertUserCheckIn(userName.text, userPhone.text);
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return const AlertDialog(
+                                      content: Text('Check-In Recorded!'),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.all(Radius.circular(2.0))
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                              userName.clear();
+                              userPhone.clear();
+                            },
+                            child: const Text('Check In!'),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-              const Expanded(child: ListofRecords()),
+              const Expanded(child: ListOfRecords()),
             ],
           ),
         ),
@@ -139,10 +157,10 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class ListofRecords extends StatelessWidget {
-  const ListofRecords({super.key});
+class ListOfRecords extends StatelessWidget {
+  const ListOfRecords({super.key});
 
-  Widget listItem({required Map users}) {
+  Widget listItem({required Map users, required int index}) {
     String readTimestamp(int timestamp) {
       var now = DateTime.now();
       var format = DateFormat('HH:mm a');
@@ -194,29 +212,48 @@ class ListofRecords extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3.0),
-      child: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(users['user']),
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        splashColor: Colors.blue.withAlpha(30),
+        onTap: () {
+          debugPrint('Card $index tapped.');
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(users['user'],
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(users['phone'].toString()),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(users['phone'].toString(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 12.0),
+                  ),
+                ),
               ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(readTimestamp(users['checkin'])),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(readTimestamp(users['checkin']),
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontSize: 10.0),
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -224,7 +261,6 @@ class ListofRecords extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ref = FirebaseDatabase.instance.ref();
     Query dbRef =
         ref.child('list').orderByChild('reverse');
 
@@ -245,15 +281,15 @@ class ListofRecords extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              listItem(users: users),
+              listItem(users: users, index: index),
               const Padding(
                 padding: EdgeInsets.all(10.0),
-                child: Text('You have reached the end of the list'),
+                child: Text('- - - - - You have reached the end of the list - - - - -'),
               ),
             ],
           );
         }
-        return listItem(users: users);
+        return listItem(users: users, index: index);
       },
     );
   }
