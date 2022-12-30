@@ -4,11 +4,19 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/services.dart';
 import 'firebase_options.dart';
+import 'userOptions.dart' as user_options;
 
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
 
 final ref = FirebaseDatabase.instance.ref();
+
+const List<Widget> dateFormatChoices = <Widget>[
+  Text('Simple'),
+  Text('Detail'),
+];
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if(kIsWeb){
@@ -34,6 +42,10 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   TextEditingController userName = TextEditingController();
   TextEditingController userPhone = TextEditingController();
+
+  final List<bool> _selectedFormat = <bool>[true, false];
+  final ButtonStyle buttonStyle = ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent[400],);
+
 
   @override
   void dispose() {
@@ -121,6 +133,7 @@ class _MyAppState extends State<MyApp> {
                         padding: const EdgeInsets.all(8),
                         child: Builder(
                           builder: (context) => ElevatedButton(
+                            style: buttonStyle,
                             onPressed: () {
                               if (userName.text != '' && userPhone.text != '') {
                                 insertUserCheckIn(userName.text, userPhone.text);
@@ -146,9 +159,47 @@ class _MyAppState extends State<MyApp> {
                       ),
                     ),
                   ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: ToggleButtons(
+                        direction: Axis.horizontal,
+                        onPressed: (int index) {
+                          setState(() {
+                            // The button that is tapped is set to true, and the others to false.
+                            for (int i = 0; i < _selectedFormat.length; i++) {
+                              _selectedFormat[i] = i == index;
+                            }
+                            /* TODO
+                            - Changes the dateFormat when clicked
+                            - Save selected format for future use*/
+                            if(index==0){
+                              //isSimple = true;
+                              debugPrint('Simple Clicked!');
+                            }else{
+                              //isSimple = false;
+                              debugPrint('Detail Clicked!');
+                            }
+                          });
+                        },
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        selectedBorderColor: Colors.blueAccent[700],
+                        selectedColor: Colors.white,
+                        fillColor: Colors.blueAccent[200],
+                        color: Colors.blueAccent[400],
+                        constraints: const BoxConstraints(
+                          minHeight: 36.0,
+                          minWidth: 80.0,
+                        ),
+                        isSelected: _selectedFormat,
+                        children: dateFormatChoices,
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              const Expanded(child: ListOfRecords()),
+              const Expanded(child: ListOfRecords(isSimple: user_options.isSimple,)),
             ],
           ),
         ),
@@ -158,53 +209,56 @@ class _MyAppState extends State<MyApp> {
 }
 
 class ListOfRecords extends StatelessWidget {
-  const ListOfRecords({super.key});
-
+  const ListOfRecords({super.key, this.isSimple});
+  final isSimple;
   Widget listItem({required Map users, required int index}) {
     String readTimestamp(int timestamp) {
-      var now = DateTime.now();
-      var format = DateFormat('HH:mm a');
       var date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-      var diff = now.difference(date);
       var time = '';
+      if(isSimple){
+        var now = DateTime.now();
+        var diff = now.difference(date);
 
-      if (diff.inSeconds <= 60 &&
-          diff.inMinutes == 0 &&
-          diff.inHours == 0 &&
-          diff.inDays == 0) {
+        if (diff.inSeconds <= 60 &&
+            diff.inMinutes == 0 &&
+            diff.inHours == 0 &&
+            diff.inDays == 0) {
+          if (diff.inSeconds == 1 || diff.inSeconds == 0) {
+            time = '${diff.inSeconds} SECOND AGO';
+          } else {
+            time = '${diff.inSeconds} SECONDS AGO';
+          }
+        } else if (diff.inMinutes > 0 &&
+            diff.inMinutes <= 60 &&
+            diff.inHours == 0 &&
+            diff.inDays == 0) {
+          if (diff.inMinutes == 1) {
+            time = '${diff.inMinutes} MINUTE AGO';
+          } else {
+            time = '${diff.inMinutes} MINUTES AGO';
+          }
+        } else if (diff.inHours > 0 && diff.inHours < 24 && diff.inDays == 0) {
+          if (diff.inHours == 1) {
+            time = '${diff.inHours} HOUR AGO';
+          } else {
+            time = '${diff.inHours} HOURS AGO';
+          }
+        } else if (diff.inDays > 0 && diff.inDays < 7) {
+          if (diff.inDays == 1) {
+            time = '${diff.inDays} DAY AGO';
+          } else {
+            time = '${diff.inDays} DAYS AGO';
+          }
+        } else {
+          if (diff.inDays == 7) {
+            time = '${(diff.inDays / 7).floor()} WEEK AGO';
+          } else {
+            time = '${(diff.inDays / 7).floor()} WEEKS AGO';
+          }
+        }
+      }else{
+        var format = DateFormat('dd MMM yyyy, h:mm a');
         time = format.format(date);
-        if (diff.inSeconds == 1 || diff.inSeconds == 0) {
-          time = '${diff.inSeconds} SECOND AGO';
-        } else {
-          time = '${diff.inSeconds} SECONDS AGO';
-        }
-      } else if (diff.inMinutes > 0 &&
-          diff.inMinutes <= 60 &&
-          diff.inHours == 0 &&
-          diff.inDays == 0) {
-        if (diff.inMinutes == 1) {
-          time = '${diff.inMinutes} MINUTE AGO';
-        } else {
-          time = '${diff.inMinutes} MINUTES AGO';
-        }
-      } else if (diff.inHours > 0 && diff.inHours < 24 && diff.inDays == 0) {
-        if (diff.inHours == 1) {
-          time = '${diff.inHours} HOUR AGO';
-        } else {
-          time = '${diff.inHours} HOURS AGO';
-        }
-      } else if (diff.inDays > 0 && diff.inDays < 7) {
-        if (diff.inDays == 1) {
-          time = '${diff.inDays} DAY AGO';
-        } else {
-          time = '${diff.inDays} DAYS AGO';
-        }
-      } else {
-        if (diff.inDays == 7) {
-          time = '${(diff.inDays / 7).floor()} WEEK AGO';
-        } else {
-          time = '${(diff.inDays / 7).floor()} WEEKS AGO';
-        }
       }
 
       return time;
