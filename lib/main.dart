@@ -117,7 +117,8 @@ class _MyAppState extends State<MyApp> {
                               content: Text('Check-In Recorded!'),
                               shape: RoundedRectangleBorder(
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(2.0))),
+                                      BorderRadius.all(Radius.circular(2.0))
+                              ),
                             );
                           },
                         );
@@ -191,48 +192,69 @@ class ListofRecords extends StatelessWidget {
       return time;
     }
 
-    return Container(
-      margin: const EdgeInsets.all(1),
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(users['user']),
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3.0),
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(users['user']),
+              ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(users['phone'].toString()),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(users['phone'].toString()),
+              ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(readTimestamp(users['checkin'])),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(readTimestamp(users['checkin'])),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final ref = FirebaseDatabase.instance.ref();
     Query dbRef =
-        FirebaseDatabase.instance.ref().child('list').orderByChild('reverse');
-    return SizedBox(
-      height: double.maxFinite,
-      child: FirebaseAnimatedList(
-        query: dbRef,
-        itemBuilder: (BuildContext context, DataSnapshot snapshot,
-            Animation<double> animation, int index) {
-          Map users = snapshot.value as Map;
-          return listItem(users: users);
-        },
-      ),
+        ref.child('list').orderByChild('reverse');
+
+    int? lastItem;
+    DatabaseReference checkLastItem = FirebaseDatabase.instance.ref('totalList');
+    checkLastItem.onValue.listen((event) {
+      lastItem = event.snapshot.value as int?;
+    });
+
+    return FirebaseAnimatedList(
+      query: dbRef,
+      itemBuilder: (BuildContext context, DataSnapshot snapshot,
+          Animation<double> animation, int index) {
+        Map users = snapshot.value as Map;
+
+        if (index+1==lastItem){
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              listItem(users: users),
+              const Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Text('You have reached the end of the list'),
+              ),
+            ],
+          );
+        }
+        return listItem(users: users);
+      },
     );
   }
 }
