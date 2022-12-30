@@ -171,9 +171,11 @@ class _MyAppState extends State<MyApp> {
                             for (int i = 0; i < _selectedFormat.length; i++) {
                               _selectedFormat[i] = i == index;
                             }
+
                             /* TODO
                             - Changes the dateFormat when clicked
                             - Save selected format for future use*/
+
                             if(index==0){
                               //isSimple = true;
                               debugPrint('Simple Clicked!');
@@ -270,6 +272,10 @@ class ListOfRecords extends StatelessWidget {
       child: InkWell(
         splashColor: Colors.blue.withAlpha(30),
         onTap: () {
+
+          /*TODO
+          Move to next page to show user's checkin activity*/
+
           debugPrint('Card $index tapped.');
         },
         child: Padding(
