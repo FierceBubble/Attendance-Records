@@ -8,14 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
-import 'userOptions.dart' as user_options;
-
-final ref = FirebaseDatabase.instance.ref();
-
-const List<Widget> dateFormatChoices = <Widget>[
-  Text('Simple'),
-  Text('Detail'),
-];
+import 'userOptions.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,13 +33,20 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  TextEditingController userName = TextEditingController();
-  TextEditingController userPhone = TextEditingController();
-
-  final List<bool> _selectedFormat = <bool>[true, false];
+  final ref = FirebaseDatabase.instance.ref();
   final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
     backgroundColor: Colors.blueAccent[400],
   );
+
+  List<Widget> dateFormatChoices = <Widget>[
+    const Text('Simple'),
+    const Text('Detail'),
+  ];
+  TextEditingController userName = TextEditingController();
+  TextEditingController userPhone = TextEditingController();
+
+  List<bool> _selectedFormat = <bool>[true, false];
+  bool isSimple = true;
 
   @override
   void dispose() {
@@ -55,11 +55,23 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _DateFormat = user_options.getDateFormat() as bool;
-  // }
+  @override
+  void initState() {
+    super.initState();
+    loadUserOptions();
+  }
+
+  void loadUserOptions() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isSimple = (prefs.getBool('dateformat') ?? true);
+      if (isSimple) {
+        _selectedFormat = [true, false];
+      } else {
+        _selectedFormat = [false, true];
+      }
+    });
+  }
 
   Future<void> insertUserCheckIn(String name, String phone) async {
     int dateNow = DateTime.now().millisecondsSinceEpoch;
@@ -186,9 +198,13 @@ class _MyAppState extends State<MyApp> {
 
                             if (index == 0) {
                               //isSimple = true;
+                              UserOptions.setDateFormat(true);
+                              setState(() {});
                               debugPrint('Simple Clicked!');
                             } else {
                               //isSimple = false;
+                              UserOptions.setDateFormat(false);
+                              setState(() {});
                               debugPrint('Detail Clicked!');
                             }
                           });
@@ -210,8 +226,8 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ],
               ),
-              const Expanded(
-                child: ListOfRecords(isSimple: true),
+              Expanded(
+                child: ListOfRecords(isSimple: isSimple),
               ),
               // FutureBuilder<bool>(
               //   future: user_options.getDateFormat(),
@@ -232,7 +248,7 @@ class _MyAppState extends State<MyApp> {
 
 class ListOfRecords extends StatelessWidget {
   const ListOfRecords({super.key, required this.isSimple});
-  final bool? isSimple;
+  final bool isSimple;
 
   Widget listItem({required Map users, required int index}) {
     String readTimestamp(int timestamp) {
@@ -344,6 +360,7 @@ class ListOfRecords extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ref = FirebaseDatabase.instance.ref();
     Query dbRef = ref.child('list').orderByChild('reverse');
 
     int? lastItem;

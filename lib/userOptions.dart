@@ -1,21 +1,18 @@
 // ignore_for_file: file_names, constant_identifier_names
-
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String _DateFormat = 'dateformat';
+class UserOptions {
+  static const String _DateFormat = 'dateformat';
 
-Future<bool> getDateFormat() async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  static Future getDateFormat() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  return prefs.getBool(_DateFormat) ?? true;
-}
+    return prefs.getBool(_DateFormat);
+  }
 
-/// ----------------------------------------------------------
-/// Method that saves the user language code
-/// ----------------------------------------------------------
-Future<bool> setDateFormat(bool value) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  static Future<bool> setDateFormat(value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  return prefs.setBool(_DateFormat, value);
+    return await prefs.setBool(_DateFormat, value);
+  }
 }
