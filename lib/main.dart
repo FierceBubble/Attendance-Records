@@ -227,17 +227,16 @@ class _MyAppState extends State<MyApp> {
                 ],
               ),
               Expanded(
-                child: ListOfRecords(isSimple: isSimple),
+                child: FutureBuilder(
+                  future: UserOptions.getDateFormat(),
+                  initialData: isSimple,
+                  builder: ((context, snapshot) {
+                    return snapshot.hasData
+                        ? ListOfRecords(isSimple: snapshot.data)
+                        : Container();
+                  }),
+                ),
               ),
-              // FutureBuilder<bool>(
-              //   future: user_options.getDateFormat(),
-              //   initialData: true,
-              //   builder: ((context, snapshot) {
-              //     return snapshot.hasData
-              //         ? ListOfRecords(isSimple: snapshot.data)
-              //         : Container();
-              //   }),
-              // ),
             ],
           ),
         ),
