@@ -1,13 +1,14 @@
-import 'package:firebase_database/ui/firebase_animated_list.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'firebase_options.dart';
 import 'userOptions.dart' as user_options;
-
-import 'package:intl/intl.dart';
-import 'package:flutter/foundation.dart';
 
 final ref = FirebaseDatabase.instance.ref();
 
@@ -16,14 +17,13 @@ const List<Widget> dateFormatChoices = <Widget>[
   Text('Detail'),
 ];
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if(kIsWeb){
+  if (kIsWeb) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-  }else{
+  } else {
     await Firebase.initializeApp(
       name: 'attendance-record---flutter',
       options: DefaultFirebaseOptions.currentPlatform,
@@ -44,8 +44,9 @@ class _MyAppState extends State<MyApp> {
   TextEditingController userPhone = TextEditingController();
 
   final List<bool> _selectedFormat = <bool>[true, false];
-  final ButtonStyle buttonStyle = ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent[400],);
-
+  final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
+    backgroundColor: Colors.blueAccent[400],
+  );
 
   @override
   void dispose() {
@@ -53,6 +54,12 @@ class _MyAppState extends State<MyApp> {
     userPhone.dispose();
     super.dispose();
   }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _DateFormat = user_options.getDateFormat() as bool;
+  // }
 
   Future<void> insertUserCheckIn(String name, String phone) async {
     int dateNow = DateTime.now().millisecondsSinceEpoch;
@@ -86,12 +93,13 @@ class _MyAppState extends State<MyApp> {
             children: [
               const Padding(
                 padding: EdgeInsets.all(10.0),
-                child: Text('Check-In Now !!!',
+                child: Text(
+                  'Check-In Now !!!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.lightBlue ,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.lightBlue,
                   ),
                 ),
               ),
@@ -124,7 +132,7 @@ class _MyAppState extends State<MyApp> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget> [
+                children: <Widget>[
                   Expanded(
                     flex: 2,
                     child: Container(
@@ -136,16 +144,16 @@ class _MyAppState extends State<MyApp> {
                             style: buttonStyle,
                             onPressed: () {
                               if (userName.text != '' && userPhone.text != '') {
-                                insertUserCheckIn(userName.text, userPhone.text);
+                                insertUserCheckIn(
+                                    userName.text, userPhone.text);
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return const AlertDialog(
                                       content: Text('Check-In Recorded!'),
                                       shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.all(Radius.circular(2.0))
-                                      ),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(2.0))),
                                     );
                                   },
                                 );
@@ -176,16 +184,17 @@ class _MyAppState extends State<MyApp> {
                             - Changes the dateFormat when clicked
                             - Save selected format for future use*/
 
-                            if(index==0){
+                            if (index == 0) {
                               //isSimple = true;
                               debugPrint('Simple Clicked!');
-                            }else{
+                            } else {
                               //isSimple = false;
                               debugPrint('Detail Clicked!');
                             }
                           });
                         },
-                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(8)),
                         selectedBorderColor: Colors.blueAccent[700],
                         selectedColor: Colors.white,
                         fillColor: Colors.blueAccent[200],
@@ -201,7 +210,18 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ],
               ),
-              const Expanded(child: ListOfRecords(isSimple: user_options.isSimple,)),
+              const Expanded(
+                child: ListOfRecords(isSimple: true),
+              ),
+              // FutureBuilder<bool>(
+              //   future: user_options.getDateFormat(),
+              //   initialData: true,
+              //   builder: ((context, snapshot) {
+              //     return snapshot.hasData
+              //         ? ListOfRecords(isSimple: snapshot.data)
+              //         : Container();
+              //   }),
+              // ),
             ],
           ),
         ),
@@ -211,13 +231,14 @@ class _MyAppState extends State<MyApp> {
 }
 
 class ListOfRecords extends StatelessWidget {
-  const ListOfRecords({super.key, this.isSimple});
-  final isSimple;
+  const ListOfRecords({super.key, required this.isSimple});
+  final bool? isSimple;
+
   Widget listItem({required Map users, required int index}) {
     String readTimestamp(int timestamp) {
       var date = DateTime.fromMillisecondsSinceEpoch(timestamp);
       var time = '';
-      if(isSimple){
+      if (isSimple == true) {
         var now = DateTime.now();
         var diff = now.difference(date);
 
@@ -258,7 +279,7 @@ class ListOfRecords extends StatelessWidget {
             time = '${(diff.inDays / 7).floor()} WEEKS AGO';
           }
         }
-      }else{
+      } else {
         var format = DateFormat('dd MMM yyyy, h:mm a');
         time = format.format(date);
       }
@@ -272,9 +293,7 @@ class ListOfRecords extends StatelessWidget {
       child: InkWell(
         splashColor: Colors.blue.withAlpha(30),
         onTap: () {
-
-          /*TODO
-          Move to next page to show user's checkin activity*/
+          /*TODO: Move to next page to show user's checkin activity*/
 
           debugPrint('Card $index tapped.');
         },
@@ -286,9 +305,11 @@ class ListOfRecords extends StatelessWidget {
                 flex: 1,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(users['user'],
+                  child: Text(
+                    users['user'],
                     textAlign: TextAlign.left,
-                    style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 12.0, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -296,7 +317,8 @@ class ListOfRecords extends StatelessWidget {
                 flex: 1,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(users['phone'].toString(),
+                  child: Text(
+                    users['phone'].toString(),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 12.0),
                   ),
@@ -306,7 +328,8 @@ class ListOfRecords extends StatelessWidget {
                 flex: 1,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(readTimestamp(users['checkin']),
+                  child: Text(
+                    readTimestamp(users['checkin']),
                     textAlign: TextAlign.right,
                     style: const TextStyle(fontSize: 10.0),
                   ),
@@ -321,11 +344,11 @@ class ListOfRecords extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Query dbRef =
-        ref.child('list').orderByChild('reverse');
+    Query dbRef = ref.child('list').orderByChild('reverse');
 
     int? lastItem;
-    DatabaseReference checkLastItem = FirebaseDatabase.instance.ref('totalList');
+    DatabaseReference checkLastItem =
+        FirebaseDatabase.instance.ref('totalList');
     checkLastItem.onValue.listen((event) {
       lastItem = event.snapshot.value as int?;
     });
@@ -336,7 +359,7 @@ class ListOfRecords extends StatelessWidget {
           Animation<double> animation, int index) {
         Map users = snapshot.value as Map;
 
-        if (index+1==lastItem){
+        if (index + 1 == lastItem) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -344,7 +367,8 @@ class ListOfRecords extends StatelessWidget {
               listItem(users: users, index: index),
               const Padding(
                 padding: EdgeInsets.all(10.0),
-                child: Text('- - - - - You have reached the end of the list - - - - -'),
+                child: Text(
+                    '- - - - - You have reached the end of the list - - - - -'),
               ),
             ],
           );
