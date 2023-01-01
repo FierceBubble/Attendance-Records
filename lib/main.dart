@@ -192,20 +192,16 @@ class _MyAppState extends State<MyApp> {
                               _selectedFormat[i] = i == index;
                             }
 
-                            /* TODO
-                            - Changes the dateFormat when clicked
-                            - Save selected format for future use*/
-
                             if (index == 0) {
                               //isSimple = true;
                               UserOptions.setDateFormat(true);
                               setState(() {});
-                              debugPrint('Simple Clicked!');
+                              debugPrint('Simple date format shown!');
                             } else {
                               //isSimple = false;
                               UserOptions.setDateFormat(false);
                               setState(() {});
-                              debugPrint('Detail Clicked!');
+                              debugPrint('Detail date format shown!');
                             }
                           });
                         },
@@ -231,9 +227,10 @@ class _MyAppState extends State<MyApp> {
                   future: UserOptions.getDateFormat(),
                   initialData: isSimple,
                   builder: ((context, snapshot) {
-                    return snapshot.hasData
-                        ? ListOfRecords(isSimple: snapshot.data)
-                        : Container();
+                    if (snapshot.hasData) {
+                      return ListOfRecords(isSimple: snapshot.data);
+                    }
+                    return ListOfRecords(isSimple: isSimple);
                   }),
                 ),
               ),
