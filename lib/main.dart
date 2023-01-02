@@ -42,23 +42,30 @@ class _MyAppState extends State<MyApp> {
     const Text('Simple'),
     const Text('Detail'),
   ];
-  TextEditingController userName = TextEditingController();
-  TextEditingController userPhone = TextEditingController();
+  final TextEditingController _userNameInputController =
+      TextEditingController();
+  final TextEditingController _userPhoneInputController =
+      TextEditingController();
+  final TextEditingController _searchInputController = TextEditingController();
 
   List<bool> _selectedFormat = <bool>[true, false];
   bool isSimple = true;
+  Query dbRef =
+      FirebaseDatabase.instance.ref().child('list').orderByChild('reverse');
 
   @override
   void dispose() {
-    userName.dispose();
-    userPhone.dispose();
+    _userNameInputController.dispose();
+    _userPhoneInputController.dispose();
+    _searchInputController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
-    super.initState();
     loadUserOptions();
+    searchKeyWord();
+    super.initState();
   }
 
   void loadUserOptions() async {
@@ -70,6 +77,20 @@ class _MyAppState extends State<MyApp> {
       } else {
         _selectedFormat = [false, true];
       }
+    });
+  }
+
+  void searchKeyWord() {
+    _searchInputController.addListener(() {
+      debugPrint(_searchInputController.text);
+      setState(() {
+        dbRef = FirebaseDatabase.instance
+            .ref()
+            .child('list')
+            .orderByChild('reverse')
+            .startAt(_searchInputController.text)
+            .endAt('~');
+      });
     });
   }
 
@@ -119,62 +140,83 @@ class _MyAppState extends State<MyApp> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: TextFormField(
-                  controller: userName,
+                  controller: _userNameInputController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Enter your name',
                   ),
                 ),
               ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: TextFormField(
-                  controller: userPhone,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(13),
-                  ],
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Enter your phone number',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: TextFormField(
+                        controller: _userPhoneInputController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(13),
+                        ],
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Enter your phone number',
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Builder(
+                        builder: (context) => ElevatedButton(
+                          style: buttonStyle,
+                          onPressed: () {
+                            if (_userNameInputController.text != '' &&
+                                _userPhoneInputController.text != '') {
+                              insertUserCheckIn(_userNameInputController.text,
+                                  _userPhoneInputController.text);
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return const AlertDialog(
+                                    content: Text('Check-In Recorded!'),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(2.0),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }
+                            _userNameInputController.clear();
+                            _userPhoneInputController.clear();
+                          },
+                          child: const Text('Check In!'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   Expanded(
-                    flex: 2,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Builder(
-                          builder: (context) => ElevatedButton(
-                            style: buttonStyle,
-                            onPressed: () {
-                              if (userName.text != '' && userPhone.text != '') {
-                                insertUserCheckIn(
-                                    userName.text, userPhone.text);
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return const AlertDialog(
-                                      content: Text('Check-In Recorded!'),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(2.0))),
-                                    );
-                                  },
-                                );
-                              }
-                              userName.clear();
-                              userPhone.clear();
-                            },
-                            child: const Text('Check In!'),
-                          ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: TextFormField(
+                        controller: _searchInputController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Search name',
                         ),
                       ),
                     ),
@@ -212,7 +254,7 @@ class _MyAppState extends State<MyApp> {
                         fillColor: Colors.blueAccent[200],
                         color: Colors.blueAccent[400],
                         constraints: const BoxConstraints(
-                          minHeight: 36.0,
+                          minHeight: 24.0,
                           minWidth: 80.0,
                         ),
                         isSelected: _selectedFormat,
@@ -228,9 +270,15 @@ class _MyAppState extends State<MyApp> {
                   initialData: isSimple,
                   builder: ((context, snapshot) {
                     if (snapshot.hasData) {
-                      return ListOfRecords(isSimple: snapshot.data);
+                      return ListOfRecords(
+                        isSimple: snapshot.data,
+                        dbRef: dbRef,
+                      );
                     }
-                    return ListOfRecords(isSimple: isSimple);
+                    return ListOfRecords(
+                      isSimple: isSimple,
+                      dbRef: dbRef,
+                    );
                   }),
                 ),
               ),
@@ -243,8 +291,9 @@ class _MyAppState extends State<MyApp> {
 }
 
 class ListOfRecords extends StatelessWidget {
-  const ListOfRecords({super.key, required this.isSimple});
+  const ListOfRecords({super.key, required this.isSimple, required this.dbRef});
   final bool isSimple;
+  final Query dbRef;
 
   Widget listItem({required Map users, required int index}) {
     String readTimestamp(int timestamp) {
@@ -356,9 +405,6 @@ class ListOfRecords extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ref = FirebaseDatabase.instance.ref();
-    Query dbRef = ref.child('list').orderByChild('reverse');
-
     int? lastItem;
     DatabaseReference checkLastItem =
         FirebaseDatabase.instance.ref('totalList');
@@ -367,11 +413,12 @@ class ListOfRecords extends StatelessWidget {
     });
 
     return FirebaseAnimatedList(
+      shrinkWrap: true,
+      defaultChild: const Center(child: CircularProgressIndicator()),
       query: dbRef,
       itemBuilder: (BuildContext context, DataSnapshot snapshot,
           Animation<double> animation, int index) {
         Map users = snapshot.value as Map;
-
         if (index + 1 == lastItem) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
