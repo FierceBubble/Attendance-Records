@@ -90,6 +90,8 @@ class _MyAppState extends State<MyApp> {
             .orderByChild('reverse')
             .startAt(_searchInputController.text)
             .endAt('~');
+
+        //dbRef = FirebaseDatabase.instance.ref().child('list').or
       });
     });
   }
@@ -107,8 +109,19 @@ class _MyAppState extends State<MyApp> {
       'totalList': idx! + 1,
     });
 
-    await ref.child('list/$idx').set(
-        {'user': name, 'phone': phone, 'checkin': dateNow, 'reverse': dateRev});
+    await ref.child('list/$idx').set({
+      'user': name,
+      'phone': phone,
+      'checkin': ServerValue.timestamp,
+      'reverse': ServerValue.timestamp,
+    });
+
+    int? reverse = 0;
+    final snapshotR = await ref.child('list/$idx/reverse').get();
+    if (snapshotR.exists) {
+      reverse = (snapshotR.value as int?)! * -1;
+    }
+    await ref.child('list/$idx').update({'reverse': reverse});
   }
 
   @override
