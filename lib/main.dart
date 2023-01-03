@@ -47,6 +47,7 @@ class _MyAppState extends State<MyApp> {
   final TextEditingController _userPhoneInputController =
       TextEditingController();
   final TextEditingController _searchInputController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   List<bool> _selectedFormat = <bool>[true, false];
   bool isSimple = true;
@@ -58,17 +59,19 @@ class _MyAppState extends State<MyApp> {
     _userNameInputController.dispose();
     _userPhoneInputController.dispose();
     _searchInputController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
-    loadUserOptions();
-    searchKeyWord();
+    _loadUserOptions();
+    _searchKeyWord();
+    _scrollListener();
     super.initState();
   }
 
-  void loadUserOptions() async {
+  void _loadUserOptions() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       isSimple = (prefs.getBool('dateformat') ?? true);
@@ -80,7 +83,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void searchKeyWord() {
+  void _searchKeyWord() {
     _searchInputController.addListener(() {
       debugPrint(_searchInputController.text);
       setState(() {
@@ -96,17 +99,34 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void _scrollListener() {
+    _scrollController.addListener(() {
+      if (_scrollController.offset >=
+              _scrollController.position.maxScrollExtent &&
+          !_scrollController.position.outOfRange) {
+        setState(() {
+          const Center(
+            child: Text(
+                '- - - - - You have reached the end of the list - - - - -'),
+          );
+          debugPrint(
+              '- - - - - You have reached the end of the list - - - - -');
+        });
+      }
+    });
+  }
+
   Future<void> insertUserCheckIn(String name, String phone) async {
-    int dateNow = DateTime.now().millisecondsSinceEpoch;
-    int dateRev = dateNow * -1;
-    int? idx = 0;
+    // use DateTime.now().millisecondsSinceEpoch;
+    // to get epoch timestamp
+    int idx = 0;
     final snapshot = await ref.child('totalList').get();
     if (snapshot.exists) {
-      idx = snapshot.value as int?;
+      idx = snapshot.value as int;
     }
 
     await ref.update({
-      'totalList': idx! + 1,
+      'totalList': idx + 1,
     });
 
     await ref.child('list/$idx').set({
@@ -116,10 +136,10 @@ class _MyAppState extends State<MyApp> {
       'reverse': ServerValue.timestamp,
     });
 
-    int? reverse = 0;
+    int reverse = 0;
     final snapshotR = await ref.child('list/$idx/reverse').get();
     if (snapshotR.exists) {
-      reverse = (snapshotR.value as int?)! * -1;
+      reverse = (snapshotR.value as int) * -1;
     }
     await ref.child('list/$idx').update({'reverse': reverse});
   }
@@ -221,19 +241,19 @@ class _MyAppState extends State<MyApp> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: TextFormField(
-                        controller: _searchInputController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Search name',
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Expanded(
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.symmetric(
+                  //         horizontal: 16, vertical: 8),
+                  //     child: TextFormField(
+                  //       controller: _searchInputController,
+                  //       decoration: const InputDecoration(
+                  //         border: OutlineInputBorder(),
+                  //         labelText: 'Search name',
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Padding(
@@ -278,21 +298,27 @@ class _MyAppState extends State<MyApp> {
                 ],
               ),
               Expanded(
-                child: FutureBuilder(
-                  future: UserOptions.getDateFormat(),
-                  initialData: isSimple,
-                  builder: ((context, snapshot) {
-                    if (snapshot.hasData) {
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  child: FutureBuilder(
+                    future: UserOptions.getDateFormat(),
+                    initialData: isSimple,
+                    builder: ((context, snapshot) {
+                      if (snapshot.hasData) {
+                        return ListOfRecords(
+                          isSimple: snapshot.data,
+                          dbRef: dbRef,
+                          scrollController: _scrollController,
+                        );
+                      }
                       return ListOfRecords(
-                        isSimple: snapshot.data,
+                        isSimple: isSimple,
                         dbRef: dbRef,
+                        scrollController: _scrollController,
                       );
-                    }
-                    return ListOfRecords(
-                      isSimple: isSimple,
-                      dbRef: dbRef,
-                    );
-                  }),
+                    }),
+                  ),
                 ),
               ),
             ],
@@ -304,9 +330,14 @@ class _MyAppState extends State<MyApp> {
 }
 
 class ListOfRecords extends StatelessWidget {
-  const ListOfRecords({super.key, required this.isSimple, required this.dbRef});
+  const ListOfRecords(
+      {super.key,
+      required this.isSimple,
+      required this.dbRef,
+      required this.scrollController});
   final bool isSimple;
   final Query dbRef;
+  final ScrollController scrollController;
 
   Widget listItem({required Map users, required int index}) {
     String readTimestamp(int timestamp) {
@@ -426,26 +457,15 @@ class ListOfRecords extends StatelessWidget {
     });
 
     return FirebaseAnimatedList(
+      controller: scrollController,
+      reverse: false,
       shrinkWrap: true,
       defaultChild: const Center(child: CircularProgressIndicator()),
       query: dbRef,
       itemBuilder: (BuildContext context, DataSnapshot snapshot,
           Animation<double> animation, int index) {
         Map users = snapshot.value as Map;
-        if (index + 1 == lastItem) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              listItem(users: users, index: index),
-              const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text(
-                    '- - - - - You have reached the end of the list - - - - -'),
-              ),
-            ],
-          );
-        }
+
         return listItem(users: users, index: index);
       },
     );
