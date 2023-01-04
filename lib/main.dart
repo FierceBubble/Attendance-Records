@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -8,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 import 'setting/userOptions.dart';
-import 'model/user.dart';
 import 'widget/record_list.dart';
 
 void main() async {
@@ -240,6 +238,8 @@ class _MyAppState extends State<MyApp> {
                                   );
                                 },
                               );
+                              debugPrint(
+                                  '${_userNameInputController.text} has checked-in!');
                             }
                             _userNameInputController.clear();
                             _userPhoneInputController.clear();

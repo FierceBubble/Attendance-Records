@@ -82,7 +82,7 @@ class Record_List extends StatelessWidget {
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
           onTap: () {
-            /*TODO: Move to next page to show user's checkin activity*/
+            /*Move to next page to show user's checkin activity*/
             Navigator.push(
               context,
               MaterialPageRoute(
