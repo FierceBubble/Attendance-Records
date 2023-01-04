@@ -8,8 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 import 'setting/userOptions.dart';
-import 'model/checkin_list.dart';
-import 'builder/record_list.dart';
+import 'model/user.dart';
+import 'widget/record_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -229,10 +229,8 @@ class _MyAppState extends State<MyApp> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return const AlertDialog(
-                                    alignment: Alignment.center,
-                                    content: Center(
-                                      child: Text(
-                                          'Hi,\nYour check-in has been Recorded!'),
+                                    content: Text(
+                                      'Hi,\nYour check-in has been Recorded!',
                                     ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
@@ -245,6 +243,8 @@ class _MyAppState extends State<MyApp> {
                             }
                             _userNameInputController.clear();
                             _userPhoneInputController.clear();
+                            FocusManager.instance.primaryFocus
+                                ?.unfocus(); // Close focus (on-screen Keyboard)
                           },
                           child: const Text('Check In!'),
                         ),
@@ -345,13 +345,13 @@ class _MyAppState extends State<MyApp> {
                     initialData: isSimple,
                     builder: ((context, snapshot) {
                       if (snapshot.hasData) {
-                        return ListOfRecords(
+                        return Record_List(
                           isSimple: snapshot.data,
                           dbRef: dbRef,
                           scrollController: _scrollController,
                         );
                       }
-                      return ListOfRecords(
+                      return Record_List(
                         isSimple: isSimple,
                         dbRef: dbRef,
                         scrollController: _scrollController,
@@ -365,71 +365,5 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
-  }
-}
-
-class ListOfRecords extends StatelessWidget {
-  const ListOfRecords(
-      {super.key,
-      required this.isSimple,
-      required this.dbRef,
-      required this.scrollController});
-  final bool isSimple;
-  final Query dbRef;
-  final ScrollController scrollController;
-
-  @override
-  Widget build(BuildContext context) {
-    int? lastItem;
-    DatabaseReference checkLastItem =
-        FirebaseDatabase.instance.ref('totalList');
-    checkLastItem.onValue.listen((event) {
-      lastItem = event.snapshot.value as int?;
-    });
-
-    return FirebaseAnimatedList(
-      controller: scrollController,
-      shrinkWrap: true,
-      defaultChild: const Center(
-        child: CircularProgressIndicator(),
-      ),
-      query: dbRef,
-      itemBuilder: (BuildContext context, DataSnapshot snapshot,
-          Animation<double> animation, int index) {
-        final usersCheckIn = CheckInList.fromRTDB(
-            Map<String, dynamic>.from(snapshot.value as Map));
-        return Record_List(
-                name: usersCheckIn.name,
-                phone: usersCheckIn.phone,
-                timestamp: usersCheckIn.timestamp,
-                index: index,
-                isSimple: isSimple)
-            .listItem();
-      },
-    );
-
-    // return StreamBuilder(
-    //     stream: FirebaseDatabase.instance
-    //         .ref()
-    //         .child('list')
-    //         .orderByChild('timestampR')
-    //         .onValue,
-    //     builder: (context, snapshot) {
-    //       final tileList = <ListTile>[];
-    //       if (snapshot.hasData) {
-    //         final checkinList = Map<String, dynamic>.from(
-    //             (snapshot.data! as Event).snapshot.value);
-    //         checkinList.forEach((key, value) {
-    //           final nextList = Map<String, dynamic>.from(value);
-    //           final listTile = ListTile();
-    //           tileList.add(listTile);
-    //         });
-    //       }
-    //       return Expanded(
-    //         child: ListView(
-    //           children: tileList,
-    //         ),
-    //       );
-    //     });
   }
 }

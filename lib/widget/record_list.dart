@@ -88,7 +88,6 @@ class Record_List extends StatelessWidget {
               MaterialPageRoute(
                 builder: (_) => User_Page(
                   name: name,
-                  scrollController: scrollController,
                 ),
               ),
             );
@@ -98,16 +97,14 @@ class Record_List extends StatelessWidget {
             padding: const EdgeInsets.all(5.0),
             child: Row(
               children: [
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      name,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(
-                          fontSize: 12.0, fontWeight: FontWeight.bold),
-                    ),
+                Container(
+                  width: 110,
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    name,
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(
+                        fontSize: 12.0, fontWeight: FontWeight.bold),
                   ),
                 ),
                 Expanded(
@@ -116,8 +113,8 @@ class Record_List extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       phone,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12.0),
+                      textAlign: TextAlign.left,
+                      style: const TextStyle(fontSize: 10.0),
                     ),
                   ),
                 ),
