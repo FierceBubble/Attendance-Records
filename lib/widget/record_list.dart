@@ -1,24 +1,28 @@
 // ignore_for_file: camel_case_types
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../page/user_page.dart';
+import '../model/user.dart';
 
-class Record_List {
+class Record_List extends StatelessWidget {
   final bool isSimple;
-  final String name;
-  final String phone;
-  final int timestamp;
-  final int index;
+  final Query dbRef;
+  final ScrollController scrollController;
 
-  Record_List(
-      {required this.isSimple,
-      required this.name,
-      required this.phone,
-      required this.timestamp,
-      required this.index});
+  const Record_List(
+      {super.key,
+      required this.isSimple,
+      required this.dbRef,
+      required this.scrollController});
 
-  Widget listItem() {
+  Widget listItem(
+      {required String name,
+      required String phone,
+      required int timestamp,
+      required int index}) {
     String readTimestamp(int timestamp) {
       var date = DateTime.fromMillisecondsSinceEpoch(timestamp);
       var time = '';
@@ -84,6 +88,7 @@ class Record_List {
               MaterialPageRoute(
                 builder: (_) => User_Page(
                   name: name,
+                  scrollController: scrollController,
                 ),
               ),
             );
@@ -134,4 +139,56 @@ class Record_List {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    int? lastItem;
+    DatabaseReference checkLastItem =
+        FirebaseDatabase.instance.ref('totalList');
+    checkLastItem.onValue.listen((event) {
+      lastItem = event.snapshot.value as int?;
+    });
+    return FirebaseAnimatedList(
+      controller: scrollController,
+      shrinkWrap: true,
+      defaultChild: const Center(
+        child: CircularProgressIndicator(),
+      ),
+      query: dbRef,
+      itemBuilder: (BuildContext context, DataSnapshot snapshot,
+          Animation<double> animation, int index) {
+        final usersCheckIn =
+            User.fromRTDB(Map<String, dynamic>.from(snapshot.value as Map));
+
+        return listItem(
+            name: usersCheckIn.name,
+            phone: usersCheckIn.phone,
+            timestamp: usersCheckIn.timestamp,
+            index: index);
+      },
+    );
+  }
 }
+// return StreamBuilder(
+    //     stream: FirebaseDatabase.instance
+    //         .ref()
+    //         .child('list')
+    //         .orderByChild('timestampR')
+    //         .onValue,
+    //     builder: (context, snapshot) {
+    //       final tileList = <ListTile>[];
+    //       if (snapshot.hasData) {
+    //         final checkinList = Map<String, dynamic>.from(
+    //             (snapshot.data! as Event).snapshot.value);
+    //         checkinList.forEach((key, value) {
+    //           final nextList = Map<String, dynamic>.from(value);
+    //           final listTile = ListTile();
+    //           tileList.add(listTile);
+    //         });
+    //       }
+    //       return Expanded(
+    //         child: ListView(
+    //           children: tileList,
+    //         ),
+    //       );
+    //     });
