@@ -4,11 +4,12 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
-import 'userOptions.dart';
+import 'setting/userOptions.dart';
+import 'model/checkin_list.dart';
+import 'builder/record_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -122,10 +123,11 @@ class _MyAppState extends State<MyApp> {
     int timeStampNow = DateTime.now().millisecondsSinceEpoch;
     int timeStampreverse = timeStampNow * -1;
     int idx = 0;
-    final snapshot = await _dbRef.child('totalList').get();
-    if (snapshot.exists) {
-      idx = snapshot.value as int;
-    }
+    await _dbRef.child('totalList').get().then((snapshot) {
+      if (snapshot.exists) {
+        idx = snapshot.value as int;
+      }
+    });
 
     await _dbRef.update({
       'totalList': idx + 1,
@@ -134,8 +136,8 @@ class _MyAppState extends State<MyApp> {
     final newCheckIn = <String, dynamic>{
       'user': name,
       'phone': phone,
-      'checkin': timeStampNow,
-      'reverse': timeStampreverse,
+      'timestamp': timeStampNow,
+      'timestampR': timeStampreverse,
     };
 
     await _dbRef.child('list/$idx').set(newCheckIn);
@@ -376,114 +378,6 @@ class ListOfRecords extends StatelessWidget {
   final Query dbRef;
   final ScrollController scrollController;
 
-  Widget listItem({required Map users, required int index}) {
-    String readTimestamp(int timestamp) {
-      var date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-      var time = '';
-      if (isSimple == true) {
-        var now = DateTime.now();
-        var diff = now.difference(date);
-
-        if (diff.inSeconds <= 60 &&
-            diff.inMinutes == 0 &&
-            diff.inHours == 0 &&
-            diff.inDays == 0) {
-          if (diff.inSeconds == 1 || diff.inSeconds == 0) {
-            time = '${diff.inSeconds} SECOND AGO';
-          } else {
-            time = '${diff.inSeconds} SECONDS AGO';
-          }
-        } else if (diff.inMinutes > 0 &&
-            diff.inMinutes <= 60 &&
-            diff.inHours == 0 &&
-            diff.inDays == 0) {
-          if (diff.inMinutes == 1) {
-            time = '${diff.inMinutes} MINUTE AGO';
-          } else {
-            time = '${diff.inMinutes} MINUTES AGO';
-          }
-        } else if (diff.inHours > 0 && diff.inHours < 24 && diff.inDays == 0) {
-          if (diff.inHours == 1) {
-            time = '${diff.inHours} HOUR AGO';
-          } else {
-            time = '${diff.inHours} HOURS AGO';
-          }
-        } else if (diff.inDays > 0 && diff.inDays < 7) {
-          if (diff.inDays == 1) {
-            time = '${diff.inDays} DAY AGO';
-          } else {
-            time = '${diff.inDays} DAYS AGO';
-          }
-        } else {
-          if (diff.inDays == 7) {
-            time = '${(diff.inDays / 7).floor()} WEEK AGO';
-          } else {
-            time = '${(diff.inDays / 7).floor()} WEEKS AGO';
-          }
-        }
-      } else {
-        var format = DateFormat('dd MMM yyyy, h:mm a');
-        time = format.format(date);
-      }
-
-      return time;
-    }
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3.0),
-      clipBehavior: Clip.hardEdge,
-      child: InkWell(
-        splashColor: Colors.blue.withAlpha(30),
-        onTap: () {
-          /*TODO: Move to next page to show user's checkin activity*/
-
-          debugPrint('Card $index tapped.');
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    users['user'],
-                    textAlign: TextAlign.left,
-                    style: const TextStyle(
-                        fontSize: 12.0, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    users['phone'].toString(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 12.0),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    readTimestamp(users['timestamp']),
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(fontSize: 10.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     int? lastItem;
@@ -495,35 +389,47 @@ class ListOfRecords extends StatelessWidget {
 
     return FirebaseAnimatedList(
       controller: scrollController,
-      reverse: false,
       shrinkWrap: true,
-      defaultChild: const Center(child: CircularProgressIndicator()),
+      defaultChild: const Center(
+        child: CircularProgressIndicator(),
+      ),
       query: dbRef,
       itemBuilder: (BuildContext context, DataSnapshot snapshot,
           Animation<double> animation, int index) {
-        Map users = snapshot.value as Map;
-
-        return listItem(users: users, index: index);
+        final usersCheckIn = CheckInList.fromRTDB(
+            Map<String, dynamic>.from(snapshot.value as Map));
+        return Record_List(
+                name: usersCheckIn.name,
+                phone: usersCheckIn.phone,
+                timestamp: usersCheckIn.timestamp,
+                index: index,
+                isSimple: isSimple)
+            .listItem();
       },
     );
-  }
-}
 
-class NextPage extends StatefulWidget {
-  const NextPage({super.key});
-
-  @override
-  State<NextPage> createState() => _NextPageState();
-}
-
-class _NextPageState extends State<NextPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.yellow,
-        title: const Text('Next Page'),
-      ),
-    );
+    // return StreamBuilder(
+    //     stream: FirebaseDatabase.instance
+    //         .ref()
+    //         .child('list')
+    //         .orderByChild('timestampR')
+    //         .onValue,
+    //     builder: (context, snapshot) {
+    //       final tileList = <ListTile>[];
+    //       if (snapshot.hasData) {
+    //         final checkinList = Map<String, dynamic>.from(
+    //             (snapshot.data! as Event).snapshot.value);
+    //         checkinList.forEach((key, value) {
+    //           final nextList = Map<String, dynamic>.from(value);
+    //           final listTile = ListTile();
+    //           tileList.add(listTile);
+    //         });
+    //       }
+    //       return Expanded(
+    //         child: ListView(
+    //           children: tileList,
+    //         ),
+    //       );
+    //     });
   }
 }
