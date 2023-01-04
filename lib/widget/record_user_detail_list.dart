@@ -47,19 +47,16 @@ class Record_User_Detail_List extends StatelessWidget {
                         fontSize: 12.0, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      phone,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(fontSize: 10.0),
-                    ),
+                Container(
+                  width: 90,
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    phone,
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(fontSize: 10.0),
                   ),
                 ),
                 Expanded(
-                  flex: 1,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
@@ -69,12 +66,22 @@ class Record_User_Detail_List extends StatelessWidget {
                     ),
                   ),
                 ),
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () {
+                    _shareContactInfo(name: name, phone: phone);
+                  },
+                ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  void _shareContactInfo({required name, required phone}) {
+    Share.share('$name\n$phone');
   }
 
   @override
