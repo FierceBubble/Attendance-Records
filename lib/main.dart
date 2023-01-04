@@ -33,7 +33,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final ref = FirebaseDatabase.instance.ref();
+  final _dbRef = FirebaseDatabase.instance.ref();
   final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
     backgroundColor: Colors.blueAccent[400],
   );
@@ -42,6 +42,7 @@ class _MyAppState extends State<MyApp> {
     const Text('Simple'),
     const Text('Detail'),
   ];
+
   final TextEditingController _userNameInputController =
       TextEditingController();
   final TextEditingController _userPhoneInputController =
@@ -51,8 +52,6 @@ class _MyAppState extends State<MyApp> {
 
   List<bool> _selectedFormat = <bool>[true, false];
   bool isSimple = true;
-  Query dbRef =
-      FirebaseDatabase.instance.ref().child('list').orderByChild('reverse');
 
   @override
   void dispose() {
@@ -86,13 +85,14 @@ class _MyAppState extends State<MyApp> {
   void _searchKeyWord() {
     _searchInputController.addListener(() {
       debugPrint(_searchInputController.text);
+
       setState(() {
-        dbRef = FirebaseDatabase.instance
-            .ref()
-            .child('list')
-            .orderByChild('reverse')
-            .startAt(_searchInputController.text)
-            .endAt('~');
+        // dbRef = FirebaseDatabase.instance
+        //     .ref()
+        //     .child('list')
+        //     .orderByChild('reverse')
+        //     .startAt(_searchInputController.text)
+        //     .endAt('~');
 
         //dbRef = FirebaseDatabase.instance.ref().child('list').or
       });
@@ -119,33 +119,42 @@ class _MyAppState extends State<MyApp> {
   Future<void> insertUserCheckIn(String name, String phone) async {
     // use DateTime.now().millisecondsSinceEpoch;
     // to get epoch timestamp
+    int timeStampNow = DateTime.now().millisecondsSinceEpoch;
+    int timeStampreverse = timeStampNow * -1;
     int idx = 0;
-    final snapshot = await ref.child('totalList').get();
+    final snapshot = await _dbRef.child('totalList').get();
     if (snapshot.exists) {
       idx = snapshot.value as int;
     }
 
-    await ref.update({
+    await _dbRef.update({
       'totalList': idx + 1,
     });
 
-    await ref.child('list/$idx').set({
+    final newCheckIn = <String, dynamic>{
       'user': name,
       'phone': phone,
-      'checkin': ServerValue.timestamp,
-      'reverse': ServerValue.timestamp,
-    });
+      'checkin': timeStampNow,
+      'reverse': timeStampreverse,
+    };
 
-    int reverse = 0;
-    final snapshotR = await ref.child('list/$idx/reverse').get();
-    if (snapshotR.exists) {
-      reverse = (snapshotR.value as int) * -1;
-    }
-    await ref.child('list/$idx').update({'reverse': reverse});
+    await _dbRef.child('list/$idx').set(newCheckIn);
+
+    // Use below to add data cleanly using a pre created unique id
+    // ref
+    //     .child('list')
+    //     .push()
+    //     .set(newCheckIn)
+    //     .then((_) => debugPrint('$name has chcecked in!'))
+    //     .catchError((error) => debugPrint('Theres an error: $error'));
   }
 
   @override
   Widget build(BuildContext context) {
+    Query dbRef = FirebaseDatabase.instance
+        .ref()
+        .child('list')
+        .orderByChild('timestampR');
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -218,7 +227,11 @@ class _MyAppState extends State<MyApp> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return const AlertDialog(
-                                    content: Text('Check-In Recorded!'),
+                                    alignment: Alignment.center,
+                                    content: Center(
+                                      child: Text(
+                                          'Hi,\nYour check-in has been Recorded!'),
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
                                         Radius.circular(2.0),
@@ -297,6 +310,30 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ],
               ),
+              // Expanded(
+              //   child: Padding(
+              //     padding:
+              //         const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              //     child: FutureBuilder(
+              //       future: UserOptions.getDateFormat(),
+              //       initialData: isSimple,
+              //       builder: ((context, snapshot) {
+              //         if (snapshot.hasData) {
+              //           return ListOfRecords(
+              //             isSimple: snapshot.data,
+              //             dbRef: dbRef,
+              //             scrollController: _scrollController,
+              //           );
+              //         }
+              //         return ListOfRecords(
+              //           isSimple: isSimple,
+              //           dbRef: dbRef,
+              //           scrollController: _scrollController,
+              //         );
+              //       }),
+              //     ),
+              //   ),
+              // ),
               Expanded(
                 child: Padding(
                   padding:
@@ -434,7 +471,7 @@ class ListOfRecords extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    readTimestamp(users['checkin']),
+                    readTimestamp(users['timestamp']),
                     textAlign: TextAlign.right,
                     style: const TextStyle(fontSize: 10.0),
                   ),
