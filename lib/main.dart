@@ -85,16 +85,7 @@ class _MyAppState extends State<MyApp> {
     _searchInputController.addListener(() {
       debugPrint(_searchInputController.text);
 
-      setState(() {
-        // dbRef = FirebaseDatabase.instance
-        //     .ref()
-        //     .child('list')
-        //     .orderByChild('reverse')
-        //     .startAt(_searchInputController.text)
-        //     .endAt('~');
-
-        //dbRef = FirebaseDatabase.instance.ref().child('list').or
-      });
+      setState(() {});
     });
   }
 
@@ -119,8 +110,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> insertUserCheckIn(String name, String phone) async {
-    // use DateTime.now().millisecondsSinceEpoch;
-    // to get epoch timestamp
+    // use ServerValue();
+    // to get server timestamp
     int timeStampNow = DateTime.now().millisecondsSinceEpoch;
     int timeStampreverse = timeStampNow * -1;
     int idx = 0;
@@ -142,14 +133,6 @@ class _MyAppState extends State<MyApp> {
     };
 
     await _dbRef.child('list/$idx').set(newCheckIn);
-
-    // Use below to add data cleanly using a pre created unique id
-    // ref
-    //     .child('list')
-    //     .push()
-    //     .set(newCheckIn)
-    //     .then((_) => debugPrint('$name has chcecked in!'))
-    //     .catchError((error) => debugPrint('Theres an error: $error'));
   }
 
   @override
@@ -259,19 +242,6 @@ class _MyAppState extends State<MyApp> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  // Expanded(
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.symmetric(
-                  //         horizontal: 16, vertical: 8),
-                  //     child: TextFormField(
-                  //       controller: _searchInputController,
-                  //       decoration: const InputDecoration(
-                  //         border: OutlineInputBorder(),
-                  //         labelText: 'Search name',
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Padding(
@@ -315,30 +285,6 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ],
               ),
-              // Expanded(
-              //   child: Padding(
-              //     padding:
-              //         const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              //     child: FutureBuilder(
-              //       future: UserOptions.getDateFormat(),
-              //       initialData: isSimple,
-              //       builder: ((context, snapshot) {
-              //         if (snapshot.hasData) {
-              //           return ListOfRecords(
-              //             isSimple: snapshot.data,
-              //             dbRef: dbRef,
-              //             scrollController: _scrollController,
-              //           );
-              //         }
-              //         return ListOfRecords(
-              //           isSimple: isSimple,
-              //           dbRef: dbRef,
-              //           scrollController: _scrollController,
-              //         );
-              //       }),
-              //     ),
-              //   ),
-              // ),
               Expanded(
                 child: Padding(
                   padding:

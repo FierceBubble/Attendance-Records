@@ -182,26 +182,3 @@ class Record_List extends StatelessWidget {
     );
   }
 }
-// return StreamBuilder(
-    //     stream: FirebaseDatabase.instance
-    //         .ref()
-    //         .child('list')
-    //         .orderByChild('timestampR')
-    //         .onValue,
-    //     builder: (context, snapshot) {
-    //       final tileList = <ListTile>[];
-    //       if (snapshot.hasData) {
-    //         final checkinList = Map<String, dynamic>.from(
-    //             (snapshot.data! as Event).snapshot.value);
-    //         checkinList.forEach((key, value) {
-    //           final nextList = Map<String, dynamic>.from(value);
-    //           final listTile = ListTile();
-    //           tileList.add(listTile);
-    //         });
-    //       }
-    //       return Expanded(
-    //         child: ListView(
-    //           children: tileList,
-    //         ),
-    //       );
-    //     });
