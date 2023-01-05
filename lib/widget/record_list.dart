@@ -145,8 +145,8 @@ class Record_List extends StatelessWidget {
     checkLastItem.onValue.listen((event) {
       lastItem = event.snapshot.value as int?;
     });
+
     return FirebaseAnimatedList(
-      controller: scrollController,
       shrinkWrap: true,
       defaultChild: const Center(
         child: CircularProgressIndicator(),
@@ -157,6 +157,22 @@ class Record_List extends StatelessWidget {
         final usersCheckIn =
             User.fromRTDB(Map<String, dynamic>.from(snapshot.value as Map));
 
+        if (lastItem == index + 1) {
+          return Column(
+            children: [
+              listItem(
+                  name: usersCheckIn.name,
+                  phone: usersCheckIn.phone,
+                  timestamp: usersCheckIn.timestamp,
+                  index: index),
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                child: const Text(
+                    '- - - - - You have reached the end of the list - - - - -'),
+              ),
+            ],
+          );
+        }
         return listItem(
             name: usersCheckIn.name,
             phone: usersCheckIn.phone,

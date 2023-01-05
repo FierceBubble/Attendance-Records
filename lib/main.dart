@@ -104,10 +104,13 @@ class _MyAppState extends State<MyApp> {
               _scrollController.position.maxScrollExtent &&
           !_scrollController.position.outOfRange) {
         setState(() {
-          const Center(
-            child: Text(
-                '- - - - - You have reached the end of the list - - - - -'),
+          Builder(
+            builder: (context) => const Center(
+              child: Text(
+                  '- - - - - You have reached the end of the list - - - - -'),
+            ),
           );
+
           debugPrint(
               '- - - - - You have reached the end of the list - - - - -');
         });
