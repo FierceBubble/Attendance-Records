@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>493909958756-stn6k1rs15g9rtm6ojvgi4dlm4jrgjq3.apps.googleusercontent.com</string>
+	<string>493909958756-7e5dl3s6151hogmc45fvuh9bs0ml4et4.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.493909958756-stn6k1rs15g9rtm6ojvgi4dlm4jrgjq3</string>
+	<string>com.googleusercontent.apps.493909958756-7e5dl3s6151hogmc45fvuh9bs0ml4et4</string>
 	<key>API_KEY</key>
 	<string>AIzaSyAv9DqZKmcsTbf5-wtosYRcnCFHQF_N53g</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.attendancerecords</string>
+	<string>com.fiercebubble.attendancerecords</string>
 	<key>PROJECT_ID</key>
 	<string>attendance-record---flutter</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:493909958756:ios:71cafd7d7b49d7d8cd3f71</string>
+	<string>1:493909958756:ios:75d44e6e469f7934cd3f71</string>
+	<key>DATABASE_URL</key>
+	<string>https://attendance-record---flutter-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>
