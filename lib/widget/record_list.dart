@@ -1,8 +1,10 @@
 // ignore_for_file: camel_case_types
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:io' show Platform;
 
 import '../page/user_page.dart';
 import '../model/user.dart';
@@ -146,11 +148,17 @@ class Record_List extends StatelessWidget {
       lastItem = event.snapshot.value as int?;
     });
 
+    Widget loadIndicator() {
+      return Center(
+        child: Platform.isAndroid
+            ? const CircularProgressIndicator()
+            : const CupertinoActivityIndicator(),
+      );
+    }
+
     return FirebaseAnimatedList(
       shrinkWrap: true,
-      defaultChild: const Center(
-        child: CircularProgressIndicator(),
-      ),
+      defaultChild: loadIndicator(),
       query: dbRef,
       itemBuilder: (BuildContext context, DataSnapshot snapshot,
           Animation<double> animation, int index) {
