@@ -41,6 +41,7 @@ dependencies:
   shared_preferences: ^2.0.15
   provider: ^6.0.5
   share_plus: ^6.3.0
+  introduction_screen: ^3.1.4
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +64,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - assets/images/img1.jpeg
+    - assets/images/img2.jpeg
+    - assets/images/img3.jpeg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

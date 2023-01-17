@@ -64,6 +64,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  dots_indicator:
+    dependency: transitive
+    description:
+      name: dots_indicator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.0"
   fake_async:
     dependency: transitive
     description:
@@ -156,6 +163,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.18.0"
+  introduction_screen:
+    dependency: "direct main"
+    description:
+      name: introduction_screen
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.4"
   js:
     dependency: transitive
     description:
@@ -197,7 +211,7 @@ packages:
       name: mime
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.4"
   nested:
     dependency: transitive
     description:
@@ -246,7 +260,7 @@ packages:
       name: path_provider_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.6"
+    version: "2.0.7"
   path_provider_platform_interface:
     dependency: transitive
     description:
@@ -309,7 +323,7 @@ packages:
       name: shared_preferences
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.15"
+    version: "2.0.16"
   shared_preferences_android:
     dependency: transitive
     description:
@@ -317,10 +331,10 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.14"
-  shared_preferences_ios:
+  shared_preferences_foundation:
     dependency: transitive
     description:
-      name: shared_preferences_ios
+      name: shared_preferences_foundation
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.1"
@@ -331,13 +345,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.2"
-  shared_preferences_macos:
-    dependency: transitive
-    description:
-      name: shared_preferences_macos
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.4"
   shared_preferences_platform_interface:
     dependency: transitive
     description:
@@ -468,7 +475,7 @@ packages:
       name: xdg_directories
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.0+2"
+    version: "0.2.0+3"
 sdks:
   dart: ">=2.18.6 <3.0.0"
   flutter: ">=3.0.0"
