@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'firebase_options.dart';
+import 'setting/firebase_options.dart';
 import 'page/home_page.dart';
 
 void main() async {
@@ -30,7 +30,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool doneIntro = false;
+  bool doneIntro = true;
 
   @override
   void initState() {
@@ -47,9 +47,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    if (!doneIntro) {
-      return const IntroductionPage();
+    if (doneIntro) {
+      return const HomePage();
     }
-    return const HomePage();
+    return const IntroductionPage();
   }
 }
