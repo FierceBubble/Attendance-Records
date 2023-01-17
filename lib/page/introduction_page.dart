@@ -74,9 +74,15 @@ class _AppIntroductionState extends State<AppIntroduction> {
       nextFlex: 0,
       showBackButton: true,
       back: const Icon(Icons.arrow_back),
-      skip: const Text('Skip', style: TextStyle(fontWeight: FontWeight.w600)),
+      skip: const Text(
+        'Skip',
+        style: TextStyle(fontWeight: FontWeight.w600),
+      ),
       next: const Icon(Icons.arrow_forward),
-      done: const Text('Done', style: TextStyle(fontWeight: FontWeight.w600)),
+      done: const Text(
+        'Done',
+        style: TextStyle(fontWeight: FontWeight.w600),
+      ),
       onDone: () => _onIntroEnd(context),
       curve: Curves.fastLinearToSlowEaseIn,
       controlsMargin: const EdgeInsets.all(16),

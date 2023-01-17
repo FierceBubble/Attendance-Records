@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 
@@ -149,10 +150,15 @@ class Record_List extends StatelessWidget {
     });
 
     Widget loadIndicator() {
+      if (kIsWeb) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
       return Center(
-        child: Platform.isAndroid
-            ? const CircularProgressIndicator()
-            : const CupertinoActivityIndicator(),
+        child: Platform.isIOS
+            ? const CupertinoActivityIndicator()
+            : const CircularProgressIndicator(),
       );
     }
 
