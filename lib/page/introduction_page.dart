@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import '../setting/userOptions.dart';
 
-class IntroductionPage extends StatelessWidget {
-  const IntroductionPage({super.key});
+class StartIntroductionPage extends StatelessWidget {
+  const StartIntroductionPage({super.key});
 
   @override
   Widget build(BuildContext context) {

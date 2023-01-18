@@ -1,3 +1,4 @@
+import 'package:attendancerecords/model/user.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,11 +6,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../setting/userOptions.dart';
 import '../widget/record_list.dart';
+import 'user_page.dart';
+
+class StartHome extends StatelessWidget {
+  const StartHome({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: HomePage(),
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
-  const HomePage({
-    super.key,
-  });
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -59,6 +70,7 @@ class _HomePageState extends State<HomePage> {
     _loadUserOptions();
     _searchKeyWord();
     _scrollListener();
+    _listAttendance();
     super.initState();
   }
 
@@ -94,6 +106,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _listAttendance() {
+    var query = _dbRef.child('list').orderByChild('user');
+    query.onChildAdded.forEach(
+      (event) {
+        final user = User.fromRTDB(
+            Map<String, dynamic>.from(event.snapshot.value as Map));
+        if (!listNames.contains(user.name)) {
+          listNames.add(user.name);
+        }
+      },
+    );
+  }
+
   Future<void> insertUserCheckIn(String name, String phone) async {
     // use ServerValue();
     // to get server timestamp
@@ -123,196 +148,199 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     Query dbRef = _dbRef.child('list').orderByChild('timestampR');
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blueAccent,
-          title: const Text('Attendance Records'),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text(
-                  'Check-In Now !!!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.lightBlue,
-                  ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blueAccent,
+        title: const Text('Attendance Records'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Text(
+                'Check-In Now !!!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.lightBlue,
                 ),
               ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: TextFormField(
-                  controller: _userNameInputController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Enter your name',
-                  ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: TextFormField(
+                controller: _userNameInputController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter your name',
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: TextFormField(
-                        controller: _userPhoneInputController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(13),
-                        ],
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Enter your phone number',
-                        ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: TextFormField(
+                      controller: _userPhoneInputController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(13),
+                      ],
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Enter your phone number',
                       ),
                     ),
                   ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Builder(
-                        builder: (context) => ElevatedButton(
-                          style: buttonStyle,
-                          onPressed: () {
-                            if (_userNameInputController.text != '' &&
-                                _userPhoneInputController.text != '') {
-                              insertUserCheckIn(_userNameInputController.text,
-                                  _userPhoneInputController.text);
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return const AlertDialog(
-                                    content: Text(
-                                      'Hi,\nYour check-in has been Recorded!',
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Builder(
+                      builder: (context) => ElevatedButton(
+                        style: buttonStyle,
+                        onPressed: () {
+                          if (_userNameInputController.text != '' &&
+                              _userPhoneInputController.text != '') {
+                            insertUserCheckIn(_userNameInputController.text,
+                                _userPhoneInputController.text);
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return const AlertDialog(
+                                  content: Text(
+                                    'Hi,\nYour check-in has been Recorded!',
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(2.0),
                                     ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(2.0),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                              debugPrint(
-                                  '${_userNameInputController.text} has checked-in!');
-                            }
-                            _userNameInputController.clear();
-                            _userPhoneInputController.clear();
-                            FocusManager.instance.primaryFocus
-                                ?.unfocus(); // Close focus (on-screen Keyboard)
-                          },
-                          child: const Text('Check In!'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: Autocomplete<String>(
-                        optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text == '') {
-                            return const Iterable<String>.empty();
+                                  ),
+                                );
+                              },
+                            );
+                            debugPrint(
+                                '${_userNameInputController.text} has checked-in!');
                           }
-                          return listNames.where((String name) {
-                            return name
-                                .contains(textEditingValue.text.toLowerCase());
-                          });
+                          _userNameInputController.clear();
+                          _userPhoneInputController.clear();
+                          FocusManager.instance.primaryFocus
+                              ?.unfocus(); // Close focus (on-screen Keyboard)
                         },
-                        onSelected: ((option) {
-                          debugPrint('You search for $option');
-                        }),
+                        child: const Text('Check In!'),
                       ),
                     ),
                   ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: ToggleButtons(
-                        direction: Axis.horizontal,
-                        onPressed: (int index) {
-                          setState(() {
-                            // The button that is tapped is set to true, and the others to false.
-                            for (int i = 0; i < _selectedFormat.length; i++) {
-                              _selectedFormat[i] = i == index;
-                            }
-
-                            if (index == 0) {
-                              //isSimple = true;
-                              UserOptions.setDateFormat(true);
-                              setState(() {});
-                              debugPrint('Simple date format shown!');
-                            } else {
-                              //isSimple = false;
-                              UserOptions.setDateFormat(false);
-                              setState(() {});
-                              debugPrint('Detail date format shown!');
-                            }
-                          });
-                        },
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(8)),
-                        selectedBorderColor: Colors.blueAccent[700],
-                        selectedColor: Colors.white,
-                        fillColor: Colors.blueAccent[200],
-                        color: Colors.blueAccent[400],
-                        constraints: const BoxConstraints(
-                          minHeight: 24.0,
-                          minWidth: 80.0,
-                        ),
-                        isSelected: _selectedFormat,
-                        children: dateFormatChoices,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                  child: FutureBuilder(
-                    future: UserOptions.getDateFormat(),
-                    initialData: isSimple,
-                    builder: ((context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Record_List(
-                          isSimple: snapshot.data,
-                          dbRef: dbRef,
-                          scrollController: _scrollController,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Expanded(
+                  child: Container(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Autocomplete<String>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text == '') {
+                          return const Iterable<String>.empty();
+                        }
+                        return listNames.where((String name) {
+                          return name
+                              .toLowerCase()
+                              .contains(textEditingValue.text.toLowerCase());
+                        });
+                      },
+                      onSelected: ((option) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => User_Page(
+                              name: option,
+                            ),
+                          ),
                         );
-                      }
+                      }),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: ToggleButtons(
+                      direction: Axis.horizontal,
+                      onPressed: (int index) {
+                        setState(() {
+                          // The button that is tapped is set to true, and the others to false.
+                          for (int i = 0; i < _selectedFormat.length; i++) {
+                            _selectedFormat[i] = i == index;
+                          }
+
+                          if (index == 0) {
+                            //isSimple = true;
+                            UserOptions.setDateFormat(true);
+                            setState(() {});
+                            debugPrint('Simple date format shown!');
+                          } else {
+                            //isSimple = false;
+                            UserOptions.setDateFormat(false);
+                            setState(() {});
+                            debugPrint('Detail date format shown!');
+                          }
+                        });
+                      },
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                      selectedBorderColor: Colors.blueAccent[700],
+                      selectedColor: Colors.white,
+                      fillColor: Colors.blueAccent[200],
+                      color: Colors.blueAccent[400],
+                      constraints: const BoxConstraints(
+                        minHeight: 24.0,
+                        minWidth: 80.0,
+                      ),
+                      isSelected: _selectedFormat,
+                      children: dateFormatChoices,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: FutureBuilder(
+                  future: UserOptions.getDateFormat(),
+                  initialData: isSimple,
+                  builder: ((context, snapshot) {
+                    if (snapshot.hasData) {
                       return Record_List(
-                        isSimple: isSimple,
+                        isSimple: snapshot.data,
                         dbRef: dbRef,
                         scrollController: _scrollController,
                       );
-                    }),
-                  ),
+                    }
+                    return Record_List(
+                      isSimple: isSimple,
+                      dbRef: dbRef,
+                      scrollController: _scrollController,
+                    );
+                  }),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

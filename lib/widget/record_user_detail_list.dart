@@ -1,9 +1,12 @@
 // ignore_for_file: camel_case_types
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'dart:io' show Platform;
 
 import '../model/user.dart';
 
@@ -84,12 +87,25 @@ class Record_User_Detail_List extends StatelessWidget {
     Share.share('$name\n$phone');
   }
 
+  Widget loadIndicator() {
+    if (kIsWeb) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    return Center(
+      child: Platform.isIOS
+          ? const CupertinoActivityIndicator()
+          : const CircularProgressIndicator(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FirebaseAnimatedList(
       reverse: true,
       shrinkWrap: true,
-      defaultChild: const Center(child: CircularProgressIndicator()),
+      defaultChild: loadIndicator(),
       query: dbRef,
       itemBuilder: (BuildContext context, DataSnapshot snapshot,
           Animation<double> animation, int index) {

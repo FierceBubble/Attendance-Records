@@ -48,8 +48,8 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     if (doneIntro) {
-      return const HomePage();
+      return const StartHome();
     }
-    return const IntroductionPage();
+    return const StartIntroductionPage();
   }
 }
